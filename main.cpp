@@ -18,6 +18,7 @@ int main(int argc, char* argv[]) {
   std::ifstream input(argv[1]);
   std::string line;
   while (std::getline(input, line)) {
+    std::cout << "Reading: " << line << std::endl;
     auto separator = line.find(':');
     edits.push_back(Edit{
         line.substr(0, separator),
@@ -27,6 +28,7 @@ int main(int argc, char* argv[]) {
 
   int i = 0;
   for (auto& it : edits) {
+    std::cout << "Applying: " << it.file << ":" << it.line << std::endl;
     std::string content;
     {
       std::ifstream input(it.file);
@@ -34,7 +36,9 @@ int main(int argc, char* argv[]) {
       int line_index = 0;
       while (std::getline(input, line)) {
         if (++line_index == it.line) {
-          int start = line.find("raw_ptr<");
+          const int start_ptr  = line.find("raw_ptr<");
+          const int start_ref  = line.find("raw_ref<");
+          const int start = (start_ptr != std::string::npos) ? start_ptr : start_ref;
           if (start != std::string::npos) {
             int depth = 0;
             for (int i = start; i < line.size(); ++i) {
@@ -48,6 +52,7 @@ int main(int argc, char* argv[]) {
                 if (depth == 1) {
                   line.insert(i, ", DanglingUntriaged");
                   std::cout << "Rewrote " << line << std::endl;
+                  break;
                 }
                 depth--;
               }
