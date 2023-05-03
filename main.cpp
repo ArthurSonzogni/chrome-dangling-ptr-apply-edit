@@ -36,25 +36,31 @@ int main(int argc, char* argv[]) {
       int line_index = 0;
       while (std::getline(input, line)) {
         if (++line_index == it.line) {
-          const int start_ptr  = line.find("raw_ptr<");
-          const int start_ref  = line.find("raw_ref<");
-          const int start = (start_ptr != std::string::npos) ? start_ptr : start_ref;
-          if (start != std::string::npos) {
-            int depth = 0;
-            for (int i = start; i < line.size(); ++i) {
-              std::cout << "i = " << i << " " << depth << std::endl;
-              if (line[i] == '<') {
-                depth++;
-                continue;
-              }
-
-              if (line[i] == '>') {
-                if (depth == 1) {
-                  line.insert(i, ", DanglingUntriaged");
-                  std::cout << "Rewrote " << line << std::endl;
-                  break;
+          const int start_experimental_ash = line.find("ExperimentalAsh");
+          if (start_experimental_ash != std::string::npos) {
+            line.insert(i, "DanglingUntriaged | ");
+            std::cout << "Rewrote " << line << std::endl;
+          } else {
+            const int start_ptr = line.find("raw_ptr<");
+            const int start_ref = line.find("raw_ref<");
+            const int start =
+                (start_ptr != std::string::npos) ? start_ptr : start_ref;
+            if (start != std::string::npos) {
+              int depth = 0;
+              for (int i = start; i < line.size(); ++i) {
+                if (line[i] == '<') {
+                  depth++;
+                  continue;
                 }
-                depth--;
+
+                if (line[i] == '>') {
+                  if (depth == 1) {
+                    line.insert(i, ", DanglingUntriaged");
+                    std::cout << "Rewrote " << line << std::endl;
+                    break;
+                  }
+                  depth--;
+                }
               }
             }
           }
