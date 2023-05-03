@@ -38,7 +38,7 @@ int main(int argc, char* argv[]) {
         if (++line_index == it.line) {
           const int start_experimental_ash = line.find("ExperimentalAsh");
           if (start_experimental_ash != std::string::npos) {
-            line.insert(i, "DanglingUntriaged | ");
+            line.insert(start_experimental_ash, "DanglingUntriaged | ");
             std::cout << "Rewrote " << line << std::endl;
           } else {
             const int start_ptr = line.find("raw_ptr<");
