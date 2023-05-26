@@ -1,3 +1,4 @@
+#include <algorithm>
 #include <fstream>
 #include <iostream>
 #include <string>
@@ -7,6 +8,22 @@ struct Edit {
   std::string file;
   int line;
 };
+
+bool operator<(const Edit& a, const Edit& b) {
+  // Files are sorted alphabetically
+  if (a.file < b.file)
+    return true;
+  if (b.file < a.file)
+    return false;
+
+  // Lines are sorted descendently, so that edits can be applied in order.
+  if (a.line > b.line)
+    return true;
+  if (b.line > a.line)
+    return false;
+
+  return false;
+}
 
 int main(int argc, char* argv[]) {
   if (argc != 2) {
@@ -25,6 +42,8 @@ int main(int argc, char* argv[]) {
         std::stoi(line.substr(separator + 1)),
     });
   }
+
+  std::sort(edits.begin(), edits.end());
 
   int i = 0;
   for (auto& it : edits) {
